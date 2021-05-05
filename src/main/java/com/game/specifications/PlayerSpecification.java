@@ -64,8 +64,9 @@ public class PlayerSpecification {
             return null;
         }
         try {
-            int minExperienceInt = Integer.parseInt(minExperience.toString());
-            return (r, cq, cb) -> cb.greaterThanOrEqualTo(r.get("experience"), minExperienceInt);
+            int minExperienceInt = Integer.parseInt(minExperience);
+
+            return (r, cq, cb) -> cb.greaterThanOrEqualTo(r.get("experience"), minExperienceInt-1000);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -77,8 +78,8 @@ public class PlayerSpecification {
             return null;
         }
         try {
-            int maxExperienceInt = Integer.parseInt(maxExperience.toString());
-            return (r, cq, cb) -> cb.lessThanOrEqualTo(r.get("experience"), maxExperienceInt);
+            int maxExperienceInt = Integer.parseInt(maxExperience);
+            return (r, cq, cb) -> cb.lessThanOrEqualTo(r.get("experience"), maxExperienceInt+1000);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -90,7 +91,7 @@ public class PlayerSpecification {
           return null;
         }
         try {
-            return (r, cq, cb) -> cb.equal(r.get("race"), Race.valueOf(race.toString()));
+            return (r, cq, cb) -> cb.equal(r.get("race"), Race.valueOf(race));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -103,6 +104,18 @@ public class PlayerSpecification {
         }
         try {
             return (r, cq, cb) -> cb.equal(r.get("profession"), Profession.valueOf(profession.toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Specification<Player> isBanned(String banned) {
+        if(banned == null){
+            return (r, cq, cb) -> cb.equal(r.get("banned"), false);
+        }
+        try {
+            return (r, cq, cb) -> cb.equal(r.get("banned"), Boolean.valueOf(banned));
         } catch (Exception e) {
             e.printStackTrace();
             return null;

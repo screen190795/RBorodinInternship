@@ -16,7 +16,7 @@ public interface PlayerService {
     long getPlayersCount(Map<String,String> params);
 
 
-    Player createPlayer(Player player);
+    Player createPlayer(Map<String, String> params);
 
     void deletePlayer(Long id);
 

@@ -87,6 +87,8 @@ public class PlayerServiceImpl implements PlayerService {
                         .and(professionEqualTo(params.get("profession")))
                         .and(experienceGreaterThenOrEqualTo(params.get("minExperience")))
                         .and(experienceLessThenOrEqualTo(params.get("maxExperience")))
+                        .and(isBanned(params.get("banned")))
+
                 , page);
 
     }
@@ -98,7 +100,11 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Player createPlayer(Player player) {
+    public Player createPlayer(Map<String, String> params) {
+        Player player = new Player();
+        if(params.containsKey("name")){
+            player.setName(params.get("name"));
+        }
         return playerRepository.save(player);
     }
 

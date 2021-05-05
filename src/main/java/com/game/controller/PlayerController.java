@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @RestController
@@ -42,29 +42,31 @@ public class PlayerController {
     }
 
     @PostMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Player> createPlayer(Player player) {
-        HttpHeaders headers = new HttpHeaders();
+    public ResponseEntity<Player> createPlayer(@RequestParam Map<String,String> params) {
 
 
-        if (player == null) {
+        if (params.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        this.playerService.createPlayer(player);
-        return new ResponseEntity<>(player, headers, HttpStatus.OK);
+      Player player1 =   this.playerService.createPlayer(params);
+
+        return new ResponseEntity<>(player1, HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Player> updatePlayer(@RequestBody @Validated Player player) {
+    public ResponseEntity<Player> updatePlayer(@PathVariable("id") long id, @RequestHeader Map<String,String> params) {
+        Optional<Player> player = this.playerService.getPlayer(id);
+        if(!player.isPresent()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         HttpHeaders headers = new HttpHeaders();
 
-        if (player == null) {
+        if (params == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        this.playerService.createPlayer(player);
-
-        return new ResponseEntity<>(player, headers, HttpStatus.OK);
+        return new ResponseEntity<>(this.playerService.createPlayer(params), headers, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -82,7 +84,7 @@ public class PlayerController {
 
     @GetMapping(value = "")
     @ResponseBody
-    public List<Player> getPlayersList(@RequestParam Map<String, String> params) {
+    public List<Player> getPlayersList(@RequestParam Map<String, String> params, HttpServletResponse status) {
 
         System.out.println(params);
 
@@ -90,10 +92,11 @@ public class PlayerController {
 
         try {
             if (playersList.isEmpty()) {
+                status.setStatus(404);
                 return null;
             }
 
-
+            status.setStatus(200);
             return playersList;
         } catch (Exception e) {
             e.printStackTrace();
