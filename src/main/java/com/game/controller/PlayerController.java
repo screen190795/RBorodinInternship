@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @RestController
@@ -116,18 +115,15 @@ public class PlayerController {
     }
 
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public List<Player> getPlayersList(@RequestParam Map<String, String> params, HttpServletResponse status) {
+    @ResponseStatus(HttpStatus.OK)
+    public List<Player> getPlayersList(@RequestParam Map<String, String> params) {
 
         List<Player> playersList = this.playerService.getPlayersList(params).getContent();
 
         try {
             if (playersList.isEmpty()) {
-                status.setStatus(200);
                 return playersList;
             }
-
-            status.setStatus(200);
             return playersList;
         } catch (Exception e) {
             e.printStackTrace();
