@@ -134,17 +134,7 @@ public class PlayerController {
     @GetMapping(value = "/count")
     @ResponseBody
     public ResponseEntity<Long> getPlayersCount(@RequestParam Map<String, String> params) {
-        if (params.isEmpty()) {
-            return new ResponseEntity<>(playerService.getPlayersList(params).getTotalElements(), HttpStatus.OK);
-
-        }
-
-        if (params.size() < 4) {
-            return new ResponseEntity<>(playerService.getPlayersList(params).getTotalElements(), HttpStatus.OK);
-        }
-
         long count = this.playerService.getPlayersCount(params);
-
         return new ResponseEntity<>(count, HttpStatus.OK);
     }
 
