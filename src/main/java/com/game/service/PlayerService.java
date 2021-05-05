@@ -13,11 +13,11 @@ public interface PlayerService {
 
     Page<Player> getPlayersList(Map<String, String> params);
 
-    long getPlayersCount(Map<String,String> params);
+    long getPlayersCount(Map<String, String> params);
 
     Player createPlayer(Player player);
 
-    Player updatePlayer(Player playerFromDb,Player updatedPlayer) throws EntityInsertException;
+    Player updatePlayer(Player playerFromDb, Player updatedPlayer) throws EntityInsertException;
 
     void deletePlayer(Long id);
 

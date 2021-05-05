@@ -6,13 +6,10 @@ import com.game.entity.Player;
 
 import com.game.repository.PlayerRepository;
 import com.game.utils.PlayerValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
@@ -25,8 +22,12 @@ import static com.game.specifications.PlayerSpecification.*;
 public class PlayerServiceImpl implements PlayerService {
 
 
-    @Autowired
+    final
     PlayerRepository playerRepository;
+
+    public PlayerServiceImpl(PlayerRepository playerRepository) {
+        this.playerRepository = playerRepository;
+    }
 
 
     @SuppressWarnings("ConstantConditions")

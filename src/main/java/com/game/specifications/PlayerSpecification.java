@@ -8,12 +8,11 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.Date;
 
 
-
 public class PlayerSpecification {
 
 
     public static Specification<Player> nameContains(String name) {
-        if(name == null){
+        if (name == null) {
             return (r, cq, cb) -> cb.notEqual(r.get("name"), "");
         }
         try {
@@ -34,13 +33,11 @@ public class PlayerSpecification {
     }
 
     public static Specification<Player> birthdayAfter(String birthday) {
-        if(birthday== null){
+        if (birthday == null) {
             return null;
         }
         try {
             long after = Long.parseLong(birthday);
-            System.out.println(new Date(after)+"!!!!!!!");
-
             return (r, cq, cb) -> cb.greaterThanOrEqualTo(r.get("birthday"), new Date(after));
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,7 +46,7 @@ public class PlayerSpecification {
     }
 
     public static Specification<Player> birthdayBefore(String birthday) {
-        if(birthday== null){
+        if (birthday == null) {
             return null;
         }
         try {
@@ -62,7 +59,7 @@ public class PlayerSpecification {
     }
 
     public static Specification<Player> experienceGreaterThenOrEqualTo(String minExperience) {
-        if(minExperience== null){
+        if (minExperience == null) {
             return null;
         }
         try {
@@ -76,7 +73,7 @@ public class PlayerSpecification {
     }
 
     public static Specification<Player> experienceLessThenOrEqualTo(String maxExperience) {
-        if(maxExperience==null){
+        if (maxExperience == null) {
             return null;
         }
         try {
@@ -89,8 +86,8 @@ public class PlayerSpecification {
     }
 
     public static Specification<Player> raceEqualTo(String race) {
-        if(race== null){
-          return null;
+        if (race == null) {
+            return null;
         }
         try {
             return (r, cq, cb) -> cb.equal(r.get("race"), Race.valueOf(race));
@@ -101,7 +98,7 @@ public class PlayerSpecification {
     }
 
     public static Specification<Player> professionEqualTo(String profession) {
-        if(profession == null){
+        if (profession == null) {
             return null;
         }
         try {
@@ -113,7 +110,7 @@ public class PlayerSpecification {
     }
 
     public static Specification<Player> isBanned(String banned) {
-        if(banned == null){
+        if (banned == null) {
             return null;
         }
         try {
@@ -125,7 +122,7 @@ public class PlayerSpecification {
     }
 
     public static Specification<Player> levelGreaterThenOrEqualTo(String minLevel) {
-        if(minLevel==null){
+        if (minLevel == null) {
             return null;
         }
         try {
@@ -138,7 +135,7 @@ public class PlayerSpecification {
     }
 
     public static Specification<Player> levelLessThenOrEqualTo(String maxLevel) {
-        if(maxLevel==null){
+        if (maxLevel == null) {
             return null;
         }
         try {
