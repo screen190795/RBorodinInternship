@@ -38,7 +38,9 @@ public class PlayerSpecification {
             return null;
         }
         try {
-            long after = Long.parseLong(String.valueOf(birthday));
+            long after = Long.parseLong(birthday);
+            System.out.println(new Date(after)+"!!!!!!!");
+
             return (r, cq, cb) -> cb.greaterThanOrEqualTo(r.get("birthday"), new Date(after));
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,7 +53,7 @@ public class PlayerSpecification {
             return null;
         }
         try {
-            long before = Long.parseLong(String.valueOf(birthday));
+            long before = Long.parseLong(birthday);
             return (r, cq, cb) -> cb.lessThanOrEqualTo(r.get("birthday"), new Date(before));
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,7 +68,7 @@ public class PlayerSpecification {
         try {
             int minExperienceInt = Integer.parseInt(minExperience);
 
-            return (r, cq, cb) -> cb.greaterThanOrEqualTo(r.get("experience"), minExperienceInt-1000);
+            return (r, cq, cb) -> cb.greaterThanOrEqualTo(r.get("experience"), minExperienceInt);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -79,7 +81,7 @@ public class PlayerSpecification {
         }
         try {
             int maxExperienceInt = Integer.parseInt(maxExperience);
-            return (r, cq, cb) -> cb.lessThanOrEqualTo(r.get("experience"), maxExperienceInt+1000);
+            return (r, cq, cb) -> cb.lessThanOrEqualTo(r.get("experience"), maxExperienceInt);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -103,7 +105,7 @@ public class PlayerSpecification {
             return null;
         }
         try {
-            return (r, cq, cb) -> cb.equal(r.get("profession"), Profession.valueOf(profession.toString()));
+            return (r, cq, cb) -> cb.equal(r.get("profession"), Profession.valueOf(profession));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -112,10 +114,36 @@ public class PlayerSpecification {
 
     public static Specification<Player> isBanned(String banned) {
         if(banned == null){
-            return (r, cq, cb) -> cb.equal(r.get("banned"), false);
+            return null;
         }
         try {
             return (r, cq, cb) -> cb.equal(r.get("banned"), Boolean.valueOf(banned));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Specification<Player> levelGreaterThenOrEqualTo(String minLevel) {
+        if(minLevel==null){
+            return null;
+        }
+        try {
+            int minLevelInt = Integer.parseInt(minLevel);
+            return (r, cq, cb) -> cb.greaterThanOrEqualTo(r.get("level"), minLevelInt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Specification<Player> levelLessThenOrEqualTo(String maxLevel) {
+        if(maxLevel==null){
+            return null;
+        }
+        try {
+            int maxLevelInt = Integer.parseInt(maxLevel);
+            return (r, cq, cb) -> cb.lessThanOrEqualTo(r.get("level"), maxLevelInt);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

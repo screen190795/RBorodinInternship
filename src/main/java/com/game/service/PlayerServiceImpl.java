@@ -1,13 +1,18 @@
 package com.game.service;
 
+import com.game.Exceptions.EntityInsertException;
 import com.game.controller.PlayerOrder;
 import com.game.entity.Player;
+
 import com.game.repository.PlayerRepository;
+import com.game.utils.PlayerValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
@@ -24,15 +29,15 @@ public class PlayerServiceImpl implements PlayerService {
     PlayerRepository playerRepository;
 
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public Page<Player> getPlayersList(Map<String, String> params) {
         int pageNumber = 0;
         int pageSize = 3;
         String order = PlayerOrder.ID.getFieldName();
-        System.out.println(order);
 
         if (params.containsKey("pageNumber")) {
-             pageNumber = Integer.parseInt(params.get("pageNumber"));
+            pageNumber = Integer.parseInt(params.get("pageNumber"));
 
         }
 
@@ -49,9 +54,6 @@ public class PlayerServiceImpl implements PlayerService {
 
         if (params.isEmpty()) {
             return this.playerRepository.findAll(page);
-        }
-        if (params.containsKey("pageNumber")) {
-
         }
 
         if (!params.containsKey("name")) {
@@ -88,7 +90,8 @@ public class PlayerServiceImpl implements PlayerService {
                         .and(experienceGreaterThenOrEqualTo(params.get("minExperience")))
                         .and(experienceLessThenOrEqualTo(params.get("maxExperience")))
                         .and(isBanned(params.get("banned")))
-
+                        .and(levelLessThenOrEqualTo(params.get("maxLevel")))
+                        .and(levelGreaterThenOrEqualTo(params.get("minLevel")))
                 , page);
 
     }
@@ -100,12 +103,57 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Player createPlayer(Map<String, String> params) {
-        Player player = new Player();
-        if(params.containsKey("name")){
-            player.setName(params.get("name"));
+    public Player createPlayer(Player player) {
+        player.setLevel(Player.countLevel(player.getExperience()));
+        player.setUntilNextLevel(Player.countUntilLevel(player.getExperience(), player.getLevel()));
+        if (player.getBanned() == null) {
+            player.setBanned(false);
         }
         return playerRepository.save(player);
+    }
+
+    @Override
+    public Player updatePlayer(Player playerFromDb, Player updatedPlayer) throws EntityInsertException {
+        if (playerFromDb.getName() != null && updatedPlayer.getName() != null) {
+            if (!PlayerValidator.nameIsValid(updatedPlayer.getName())) {
+                throw new EntityInsertException();
+            }
+            playerFromDb.setName(updatedPlayer.getName());
+        }
+        if (playerFromDb.getTitle() != null && updatedPlayer.getTitle() != null) {
+            if (!PlayerValidator.titleIsValid(updatedPlayer.getTitle())) {
+                throw new EntityInsertException();
+            }
+            playerFromDb.setTitle(updatedPlayer.getTitle());
+        }
+        if (playerFromDb.getRace() != null && updatedPlayer.getRace() != null) {
+            playerFromDb.setRace(updatedPlayer.getRace());
+        }
+        if (playerFromDb.getProfession() != null && updatedPlayer.getProfession() != null) {
+            playerFromDb.setProfession(updatedPlayer.getProfession());
+        }
+        if (playerFromDb.getBirthday() != null && updatedPlayer.getBirthday() != null) {
+            if (!PlayerValidator.birthDayIsValid(updatedPlayer.getBirthday().getTime())) {
+                throw new EntityInsertException();
+            }
+            playerFromDb.setBirthday(updatedPlayer.getBirthday());
+        }
+        if (playerFromDb.getBanned() != null && updatedPlayer.getBanned() != null) {
+            playerFromDb.setBanned(updatedPlayer.getBanned());
+        }
+        if (playerFromDb.getExperience() != null && updatedPlayer.getExperience() != null) {
+            if (!PlayerValidator.experienceIsValid(updatedPlayer.getExperience())) {
+                throw new EntityInsertException();
+            }
+            playerFromDb.setExperience(updatedPlayer.getExperience());
+            playerFromDb.setLevel(Player.countLevel(playerFromDb.getExperience()));
+            playerFromDb.setUntilNextLevel((Player.countUntilLevel(playerFromDb.getExperience(), playerFromDb.getLevel())));
+
+        }
+        if (playerFromDb.getUntilNextLevel() != null && updatedPlayer.getUntilNextLevel() != null) {
+            playerFromDb.setUntilNextLevel(updatedPlayer.getUntilNextLevel());
+        }
+        return playerRepository.save(playerFromDb);
     }
 
     @Override
@@ -117,6 +165,5 @@ public class PlayerServiceImpl implements PlayerService {
     public Optional<Player> getPlayer(Long id) {
         return playerRepository.findById(id);
     }
-
 
 }

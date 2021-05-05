@@ -3,6 +3,7 @@ package com.game.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Date;
 
 @Entity
@@ -11,7 +12,7 @@ import java.util.Date;
 public class Player implements Serializable {
     @Id
     @Column(name = "id")
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name")
@@ -126,19 +127,32 @@ public class Player implements Serializable {
     public Player() {
     }
 
-    @Override
-    public String toString() {
-        return "{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", title='" + title + '\'' +
-                ", race=" + race +
-                ", profession=" + profession +
-                ", experience=" + experience +
-                ", level=" + level +
-                ", untilNextLevel=" + untilNextLevel +
-                ", birthday=" + birthday +
-                ", banned=" + banned +
-                '}';
+    public Player(String name, String title, Race race, Profession profession, Integer experience, Integer level, Integer untilNextLevel, Date birthday, Boolean banned) {
+        this.name = name;
+        this.title = title;
+        this.race = race;
+        this.profession = profession;
+        this.experience = experience;
+        this.level = level;
+        this.untilNextLevel = untilNextLevel;
+        this.birthday = birthday;
+        this.banned = banned;
+    }
+
+    public static Integer countLevel(Integer exp) {
+        double level = (Math.sqrt(2500 + 200 * exp) - 50) / 100;
+        return (int) level;
+    }
+
+    public static Integer countUntilLevel(Integer exp, Integer level) {
+        double untilNextLevel = 50 * (level + 1) * (level + 2) - exp;
+        return (Integer) (int) untilNextLevel;
+    }
+
+    public boolean checkNull() throws IllegalAccessException {
+        for (Field f : getClass().getDeclaredFields())
+            if (f.get(this) != null)
+                return false;
+        return true;
     }
 }

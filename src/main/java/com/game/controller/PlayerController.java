@@ -1,10 +1,10 @@
 package com.game.controller;
 
+import com.game.Exceptions.EntityInsertException;
 import com.game.entity.Player;
 import com.game.service.PlayerService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.game.utils.PlayerValidator;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -18,82 +18,113 @@ import java.util.*;
 @RequestMapping("/rest/players")
 public class PlayerController {
 
-    @Autowired
-    private PlayerService playerService;
+    private final PlayerService playerService;
+
+    public PlayerController(PlayerService playerService) {
+        this.playerService = playerService;
+    }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Player> getPlayer(@PathVariable("id") Long id) {
+
         if (id == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Player player = this.playerService.getPlayer(id).orElse(null);
 
         if (id == 0) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
 
+        Player player = this.playerService.getPlayer(id).orElse(null);
+
         if (player == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
 
-
-        System.out.println(player);
         return new ResponseEntity<>(player, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Player> createPlayer(@RequestParam Map<String,String> params) {
+    @RequestMapping(value = "", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ResponseEntity<Player> createPlayer(@RequestBody Player player) {
 
-
-        if (params.isEmpty()) {
+        if (!PlayerValidator.enoughParamsToCreatePlayer(player)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        try {
+            if (!PlayerValidator.nameIsValid(player.getName())
+                    || !PlayerValidator.titleIsValid(player.getTitle())
+                    || !PlayerValidator.experienceIsValid(player.getExperience())
+                    || !PlayerValidator.birthDayIsValid(player.getBirthday().getTime())) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 
-      Player player1 =   this.playerService.createPlayer(params);
+        return new ResponseEntity<>(playerService.createPlayer(player), HttpStatus.OK);
 
-        return new ResponseEntity<>(player1, HttpStatus.OK);
     }
 
-    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Player> updatePlayer(@PathVariable("id") long id, @RequestHeader Map<String,String> params) {
-        Optional<Player> player = this.playerService.getPlayer(id);
-        if(!player.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        HttpHeaders headers = new HttpHeaders();
+    @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ResponseEntity<Player> updatePlayer(@PathVariable("id") String id, @RequestBody(required = false) Player updatedPlayer) {
 
-        if (params == null) {
+
+        if (!PlayerValidator.idIsValid(id)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(this.playerService.createPlayer(params), headers, HttpStatus.OK);
+        Player playerFromDb = playerService.getPlayer(Long.parseLong(id)).orElse(null);
+        if (playerFromDb == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            if (updatedPlayer.checkNull()) {
+                return new ResponseEntity<>(playerFromDb, HttpStatus.OK);
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        try {
+            playerFromDb = playerService.updatePlayer(playerFromDb, updatedPlayer);
+        } catch (EntityInsertException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(playerFromDb, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Player> deletePlayer(@PathVariable("id") long id) {
         Optional<Player> player = this.playerService.getPlayer(id);
 
+        if (id == 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         if (!player.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         this.playerService.deletePlayer(id);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping(value = "")
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<Player> getPlayersList(@RequestParam Map<String, String> params, HttpServletResponse status) {
-
-        System.out.println(params);
 
         List<Player> playersList = this.playerService.getPlayersList(params).getContent();
 
         try {
             if (playersList.isEmpty()) {
-                status.setStatus(404);
-                return null;
+                status.setStatus(200);
+                return playersList;
             }
 
             status.setStatus(200);
