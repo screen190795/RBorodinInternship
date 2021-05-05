@@ -68,7 +68,7 @@ public class PlayerController {
 
     }
 
-    @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public ResponseEntity<Player> updatePlayer(@PathVariable("id") String id, @RequestBody(required = false) Player updatedPlayer) {
