@@ -44,7 +44,6 @@ public class PlayerController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public ResponseEntity<Player> createPlayer(@RequestBody Player player) {
 
@@ -68,7 +67,6 @@ public class PlayerController {
     }
 
     @PostMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public ResponseEntity<Player> updatePlayer(@PathVariable("id") String id, @RequestBody(required = false) Player updatedPlayer) {
 
@@ -132,7 +130,6 @@ public class PlayerController {
     }
 
     @GetMapping(value = "/count")
-    @ResponseBody
     public ResponseEntity<Long> getPlayersCount(@RequestParam Map<String, String> params) {
         long count = this.playerService.getPlayersCount(params);
         return new ResponseEntity<>(count, HttpStatus.OK);
