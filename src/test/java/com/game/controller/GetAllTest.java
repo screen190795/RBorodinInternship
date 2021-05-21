@@ -26,6 +26,7 @@ public class GetAllTest extends AbstractTest {
 
     //test1
     @Test
+    //gsfsdfs
     public void getAllWithoutFiltersReturnAllPlayers() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/rest/players"))
                 .andExpect(status().isOk());
